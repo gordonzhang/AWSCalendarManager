@@ -45,29 +45,18 @@ public class CTSHandler implements RequestStreamHandler {
 				String bodyString = event.get("body").getAsString();
 				if(bodyString != null) {
 					JsonObject body = parser.parse(bodyString).getAsJsonObject();
-					String idCal = body.get("idCal").getAsString();
 					String date = body.get("date").getAsString();
-					String operation = body.get("operation").getAsString();
-					logger.log(operation);
-					if (operation.equals("add")) {
-						boolean dayAddingResult = addDayToRDS(idCal, date);
-						if (dayAddingResult==true) {
-							responseBody.addProperty("result", "Success");
-						} else {
-							responseBody.addProperty("result", "Failure");
-						}
-						logger.log("Day to add: \n" + date + "\n");
-						logger.log("Day adding result:" + dayAddingResult + "\n");
-					} else if (operation.equals("delete")) {
-						boolean deleteAddingResult = deleteDayFromRDS(idCal, date);
-						if (deleteAddingResult==true) {
-							responseBody.addProperty("result", "Success");
-						} else {
-							responseBody.addProperty("result", "Failure");
-						}
-						logger.log("Day to delete: \n" + date + "\n");
-						logger.log("Day deleting result:" + deleteAddingResult + "\n");
+					String time = body.get("time").getAsString();
+					String dowList = body.get("dowList").getAsString();
+					logger.log(dowList);
+					boolean dayAddingResult = addDayToRDS(time, date);
+					if (dayAddingResult==true) {
+						responseBody.addProperty("result", "Success");
+					} else {
+						responseBody.addProperty("result", "Failure");
 					}
+					logger.log("Day to add: \n" + date + "\n");
+					logger.log("Day adding result:" + dayAddingResult + "\n");
 				}
 			}
 			responseJson.addProperty("statusCode", 200);
