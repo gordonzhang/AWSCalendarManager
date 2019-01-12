@@ -397,7 +397,6 @@ function closeTimeSlots() {
 			loadPersonalCalendar(activeCal.idCal);
 		}
 	};
-
 }
 
 
