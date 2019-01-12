@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+<script type="text/javascript" src="CM_script.js">
+
+</script>
+</head>
+
+<body onload="doOnLoad();">
+	
+<div class="row m-2">
+	<!-- Calendar List -->
+	<div class="col-md-4 mt-1">
+		<label for="calSel">Calendar List:</label>
+		<select id="calSel" size="12" class="form-control" >
+		</select>
+		
+		<button type="button" class="btn btn-primary mt-2 ml-1 " data-toggle="modal" data-target="#newCalModal">New</button>
+		<button id="btnLPC" disabled type="button" class="btn btn-secondary mt-2 ml-1 " onClick="JavaScript:loadPersonalCalendar()">Load</button>
+		<button id="btnDPC" disabled type="button" class="btn btn-danger mt-2 ml-1 " onClick="JavaScript:deletePersonalCalendar()">Delete</button>
+	</div>
+	
+	<!-- Days List -->
+	<div class="col-md-4 mt-1">
+		<label id="labelAvailableDays" for="daySel">Available days</label>
+		<select id="daySel" multiple size="12" class="form-control" >
+		</select>
+
+		<div class="row">
+			<button id="btnAddDay" disabled type="button" class="btn btn-primary mt-2 ml-1 " data-toggle="modal" data-target="#addDayModal">Add Day</button>
+			<button id="btnDeleteDay" disabled type="button" class="btn btn-danger mt-2 ml-1 " onClick="JavaScript:deleteDayFromCalendar()">Delete Day</button>
+		</div>
+
+		<div class="row">
+			<button id="btnCloseTimeSlots" disabled type="button" class="btn btn-secondary mt-2 ml-1" data-toggle="modal" data-target="#closeTimeSlotsModal" >Close Time Slots</button>
+		</div>
+	</div>
+	
+	<!-- Schedule List -->
+	<div class="col-md-4 mt-1">
+		<label id="labelScheduleList" for="scheduleSel">Schedule:</label>
+		<select id="scheduleSel" size="12" class="form-control" >
+		</select>
+		
+		<div class="row">
+			<button id="btnNewMeeting" disabled type="button" class="btn btn-primary mt-2 ml-1 " data-toggle="modal" data-target="#addDayModal">New Meeting</button>
+			<button id="btnCancelMeeting" disabled type="button" class="btn btn-danger mt-2 ml-1 " onClick="JavaScript:cancelMeeting()">Cancel Meeting</button>
+		</div>
+
+	</div>
+</div>
+
+
+<!-- New Calendar Modal -->
+<div class="modal fade" id="newCalModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<!-- Modal Header -->
+			<div class="modal-header">
+				<h4 class="modal-title">New Calendar</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			
+			<!-- <form id="formNewCal"> -->
+			<!-- Modal body -->
+			<div class="modal-body">
+				<form>
+					<label for="calNameNCM">Calendar Name:</label>
+					<div class="input-group mb-3">
+						<input type="text" class="form-control" id="calNameNCM" placeholder="Calendar Name" >
+					</div>
+
+					<label for="startDateNCM">Starting Date:</label>
+					<div class="input-group mb-3">
+						<input type="date" class="form-control" id="startDateNCM" >
+					</div>
+
+					<label for="endDateNCM">Ending Date:</label>
+					<div class="input-group mb-3">
+						<input type="date" class="form-control" id="endDateNCM" >
+					</div>
+					
+					<label for="startHourNCM">Starting Hour:</label>
+					<div class="input-group mb-3">
+						<input type="time" class="form-control" id="startHourNCM" >
+					</div>
+					
+					<label for="endHourNCM">Ending Hour:</label>
+					<div class="input-group mb-3">
+						<input type="time" class="form-control" id="endHourNCM" >
+					</div>
+					
+					<label for="minsPerSessNCM">Minutes per Session:</label>
+					<div class="input-group ">
+						<select id="minsPerSessNCM" class="form-control" >
+							<option disabled selected hidden value> -- select an option -- </option>
+							<option value="10">10</option>
+							<option value="15">15</option>
+							<option value="20">20</option>
+							<option value="30">30</option>
+							<option value="60">60</option>
+						</select>
+					</div>
+				</form>
+			</div>
+			
+			<!-- Modal footer -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn" data-dismiss="modal">Cancel</button>
+				<button id="btnCPC" type="button" class="btn btn-primary ml-2" onClick="JavaScript:createPersonalCalendar()">Create</button>
+			</div>
+			<!-- </form> -->
+		</div>
+	</div>
+</div>
+
+
+<!-- Add Day Modal -->
+<div class="modal fade" id="addDayModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<!-- Modal Header -->
+			<div class="modal-header">
+				<h4 id="labelAddDay" class="modal-title"></h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			
+			<!-- <form id="formAddDay"> -->
+			<!-- Modal body -->
+			<div class="modal-body">
+				<form>
+					<label for="inputDateToAdd">Date to add:</label>
+					<div class="input-group mb-3">
+						<input type="date" class="form-control" id="inputDateToAdd" >
+					</div>
+				</form>
+			</div>
+			
+			<!-- Modal footer -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn" data-dismiss="modal">Cancel</button>
+				<button id="btnSubmitAddDay" type="button" class="btn btn-primary ml-2" onClick="JavaScript:addDayToCalendar()">Submit</button>
+			</div>
+			<!-- </form> -->
+		</div>
+	</div>
+</div>
+
+<!-- New Meeting Modal -->
+<div class="modal fade" id="newMeetingModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<!-- Modal Header -->
+			<div class="modal-header">
+				<h4 id="labelNewMeeting" class="modal-title"></h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			
+			<!-- <form id="formAddDay"> -->
+			<!-- Modal body -->
+			<div class="modal-body">
+				<form>
+					<label for="inputDateToAdd">Title:</label>
+					<div class="input-group mb-3">
+						<input type="text" class="form-control" id="inputTitle" >
+					</div>
+				</form>
+			</div>
+			
+			<!-- Modal footer -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn" data-dismiss="modal">Cancel</button>
+				<button id="btnSubmitAddDay" type="button" class="btn btn-primary ml-2" onClick="JavaScript:addDayToCalendar()">Submit</button>
+			</div>
+			<!-- </form> -->
+		</div>
+	</div>
+</div>
+
+<!-- Close TimeSlots Modal -->
+<div class="modal fade" id="closeTimeSlotsModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<!-- Modal Header -->
+			<div class="modal-header">
+				<h4 id="labelCloseTimeSlots" class="modal-title"></h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			
+			<!-- <form id="formAddDay"> -->
+			<!-- Modal body -->
+			<div class="modal-body">
+				<form>
+					<label for="dateToCloseSel">Date:</label>
+					<div class="input-group mb-3">
+						<select id="dateToCloseSel" class="closeTSSel form-control" >
+						</select>
+					</div>
+					
+					<label for="timeToCloseSel">Time:</label>
+					<div class="input-group mb-3">
+						<select id="timeToCloseSel" class="closeTSSel form-control" >
+						</select>
+					</div>
+
+					<div >Day of week to close:</div>
+						<form id="dayOfWeekToClose">
+							<label><input id="MonChk" class="dayOfWeekToClose ml-2" type="checkbox" value="Mon"><span>Mon</span></label>
+							<label><input id="TueChk" class="dayOfWeekToClose ml-2" type="checkbox" value="Tue"><span>Tue</span></label>
+							<label><input id="WedChk" class="dayOfWeekToClose ml-2" type="checkbox" value="Wed"><span>Wed</span></label>
+							<label><input id="ThuChk" class="dayOfWeekToClose ml-2" type="checkbox" value="Thu"><span>Thu</span></label>
+							<label><input id="FriChk" class="dayOfWeekToClose ml-2" type="checkbox" value="Fri"><span>Fri</span></label>
+							<label><input id="SatChk" class="dayOfWeekToClose ml-2" type="checkbox" value="Sat"><span>Sat</span></label>
+							<label><input id="SunChk" class="dayOfWeekToClose ml-2" type="checkbox" value="Sun"><span>Sun</span></label>
+						</form>
+				</form>
+			</div>
+			
+			<!-- Modal footer -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn" data-dismiss="modal">Cancel</button>
+				<button id="btnSubmitCloseTimeSlots" disabled type="button" class="btn btn-primary ml-2" onClick="JavaScript:closeTimeSlots()">Submit</button>
+			</div>
+			<!-- </form> -->
+		</div>
+	</div>
+</div>
+
+
+<!-- Alerts -->
+<div class="modal fade" id="calCreatingSuccessModal">
+	<div class="modal-dialog alert alert-success " role="alert">
+		<h5 class="alert-heading">Successful!</h5>
+		New calendar created!
+	</div>
+</div>
+	
+<div class="modal fade" id="calCreatingFailureModal">
+	<div class="modal-dialog alert alert-danger " role="alert">
+		<h5 class="alert-heading">Sorry...</h5>
+		New calendar creation failed.
+	</div>
+</div>
+	
+<div class="modal fade" id="calDeletingSuccessModal">
+	<div class="modal-dialog alert alert-success " role="alert">
+		<h5 class="alert-heading">Successful!</h5>
+		Calendar has been deleted!
+	</div>
+</div>
+	
+<div class="modal fade" id="calDeletingFailureModal">
+	<div class="modal-dialog alert alert-danger " role="alert">
+		<h5 class="alert-heading">Sorry...</h5>
+		Calendar deletion failed.
+	</div>
+</div>
+
+<div class="modal fade" id="dayAddingSuccessModal">
+	<div class="modal-dialog alert alert-success " role="alert">
+		<h5 class="alert-heading">Successful!</h5>
+		New date has been added!
+	</div>
+</div>
+	
+<div class="modal fade" id="dayAddingFailureModal">
+	<div class="modal-dialog alert alert-danger " role="alert">
+		<h5 class="alert-heading">Sorry...</h5>
+		Date adding failed.
+	</div>
+</div>
+	
+</body>
+</html>
+
+
+
+
