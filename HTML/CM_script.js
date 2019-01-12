@@ -524,7 +524,7 @@ function TransTo24HourBase(timeString) {
 		return timeString.substring(0,8);
 	} else {
 		var hr = parseInt(timeString.substring(0,2)) + 12;
-		var time = hr.toString() + timeString.substring(2, 8);
+		var time = hr.toString() + timeString.substring(2,8);
 		return time;
 	}
 }
