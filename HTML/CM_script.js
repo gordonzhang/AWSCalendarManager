@@ -521,7 +521,7 @@ function setCloseTimeSlotsSubmitBtn() {
 
 function TransTo24HourBase(timeString) {
 	if (timeString.substring(timeString.length-2) == 'AM') {
-		return timeString.substring(8);
+		return timeString.substring(0,8);
 	} else {
 		var hr = parseInt(timeString.substring(0,2)) + 12;
 		var time = hr.toString() + timeString.substring(2, 8);
