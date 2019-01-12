@@ -48,6 +48,8 @@ public class CTSHandler implements RequestStreamHandler {
 					String date = body.get("date").getAsString();
 					String time = body.get("time").getAsString();
 					String dowList = body.get("dowList").getAsString();
+					logger.log(date);
+					logger.log(time);
 					logger.log(dowList);
 					boolean dayAddingResult = addDayToRDS(time, date);
 					if (dayAddingResult==true) {
