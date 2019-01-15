@@ -363,6 +363,7 @@ function displaySchedule() {
 
 function closeTimeSlots() {
 	data = {};
+	data.idCal = activeCal.idCal;
 	data.date = $("#dateToCloseSel")[0].value;
 	if ($("#timeToCloseSel")[0].value == 'Whole Day') {
 		data.time = $("#timeToCloseSel")[0].value;
