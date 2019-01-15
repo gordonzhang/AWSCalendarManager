@@ -257,6 +257,19 @@ public class CalendarDAO {
         }
     }
     
+    public boolean closeTimeSlots(String idCal) throws Exception {
+        try {
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM TimeSlots WHERE idCal = ?;");
+            ps.setString(1, idCal);
+            int numAffected = ps.executeUpdate();
+            ps.close();
+            
+            return (numAffected > 0);
+        } catch (Exception e) {
+            throw new Exception("Failed to delete calendar: " + e.getMessage());
+        }
+    }
+    
     
 //    Helper Functions
 //==============================================================================================================
