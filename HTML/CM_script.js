@@ -19,11 +19,12 @@ function set_activeCal(newCal) {
 	if (activeCal) {
 		$('#btnAddDay').prop("disabled", false);
 		$('#btnCloseTimeSlots').prop("disabled", false);
-		// $('#btnCancelMeeting').prop("disabled", false);
 	} else {
 		$('#btnAddDay').prop("disabled", true);
 		$('#btnCloseTimeSlots').prop("disabled", true);
-		// $('#btnCancelMeeting').prop("disabled", true);
+		$('#btnDeleteDay').prop("disabled", true);
+		$('#btnLPC').prop("disabled", true);
+		$('#btnDPC').prop("disabled", true);
 	}
 }
 
@@ -34,7 +35,6 @@ function doOnLoad() {
 //	Disable load and delete buttons when no calendar is selected.
 	$('#calSel')[0].onchange = function () {
 		var idCalSelected = $('#calSel')[0].value;
-		// console.log(idCalSelected);
 		if (idCalSelected) {
 			$('#btnLPC').prop("disabled", false);
 			$('#btnDPC').prop("disabled", false);
@@ -92,8 +92,11 @@ function doOnLoad() {
 function loadCalendarList() {
 	var calSel = $('#calSel')[0];
 	var daySel = $('#daySel')[0];
+	var scheduleSel = $('#scheduleSel')[0];
+
 	$('#calSel').children().remove();
 	$('#daySel').children().remove();
+	$('#scheduleSel').children().remove();
 
 	var xhr = new XMLHttpRequest();
 	xhr.open("GET", loadCalendarListURL, true);
@@ -273,6 +276,7 @@ function deletePersonalCalendar() {
 				$('#calDeletingFailureModal').modal('show');
 			}
 			loadCalendarList();
+			set_activeCal(null);
 		}
 	};
 }

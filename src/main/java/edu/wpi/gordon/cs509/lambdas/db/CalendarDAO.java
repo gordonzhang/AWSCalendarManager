@@ -152,9 +152,8 @@ public class CalendarDAO {
             ps.setString(2, dateToDelete);
             int numTSAffected = ps.executeUpdate();
             ps.close();
-
             
-            return (numTSAffected > 0);
+            return ((numMTAffected + numTSAffected) > 0);
         } catch (Exception e) {
             throw new Exception("Failed to delete calendar: " + e.getMessage());
         }
@@ -259,14 +258,94 @@ public class CalendarDAO {
     
     public boolean closeTimeSlots(String idCal) throws Exception {
         try {
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM TimeSlots WHERE idCal = ?;");
+            PreparedStatement ps = conn.prepareStatement("UPDATE TimeSlots SET closed = 1 WHERE idCal = ?;");
             ps.setString(1, idCal);
             int numAffected = ps.executeUpdate();
             ps.close();
             
             return (numAffected > 0);
         } catch (Exception e) {
-            throw new Exception("Failed to delete calendar: " + e.getMessage());
+            throw new Exception("Failed to close timeslots: " + e.getMessage());
+        }
+    }
+    
+    public boolean closeTimeSlots(String idCal, String time) throws Exception {
+        try {
+            PreparedStatement ps = conn.prepareStatement("UPDATE TimeSlots SET closed = 1 WHERE (idCal = ? AND time = ?);");
+            ps.setString(1, idCal);
+            ps.setString(2, time);
+            int numAffected = ps.executeUpdate();
+            ps.close();
+            
+            return (numAffected > 0);
+        } catch (Exception e) {
+            throw new Exception("Failed to close timeslots: " + e.getMessage());
+        }
+    }
+    
+    public boolean closeAllTimeSlotsOnDate(String idCal, String date) throws Exception {
+        try {
+            PreparedStatement ps = conn.prepareStatement("UPDATE TimeSlots SET closed = 1 WHERE (idCal = ? AND date = ?);");
+            ps.setString(1, idCal);
+            ps.setString(2, date);
+            int numAffected = ps.executeUpdate();
+            ps.close();
+            
+            return (numAffected > 0);
+        } catch (Exception e) {
+            throw new Exception("Failed to close timeslots: " + e.getMessage());
+        }
+    }
+    
+    public boolean closeTimeSlots(String idCal, String date, String time) throws Exception {
+        try {
+            PreparedStatement ps = conn.prepareStatement("UPDATE TimeSlots SET closed = 1 WHERE (idCal = ? AND date = ? AND time = ?);");
+            ps.setString(1, idCal);
+            ps.setString(2, date);
+            ps.setString(3, time);
+            int numAffected = ps.executeUpdate();
+            ps.close();
+            
+            return (numAffected > 0);
+        } catch (Exception e) {
+            throw new Exception("Failed to close timeslots: " + e.getMessage());
+        }
+    }
+    
+    public boolean closeTimeSlots(String idCal, List<String> dowList) throws Exception {
+    	PreparedStatement ps;
+    	int numAffected = 0;
+        try {
+        	for (String dow: dowList) {
+        		ps = conn.prepareStatement("UPDATE TimeSlots SET closed = 1 WHERE (idCal = ? AND WEEKDAY(date) = ?);");
+                ps.setString(1, idCal);
+                ps.setString(2, dow);
+                numAffected += ps.executeUpdate();
+                ps.close();
+        	}
+            
+            return (numAffected > 0);
+        } catch (Exception e) {
+            throw new Exception("Failed to close timeslots: " + e.getMessage());
+        }
+    }
+    
+    public boolean closeTimeSlots(String idCal, List<String> dowList, String time) throws Exception {
+    	PreparedStatement ps;
+    	int numAffected = 0;
+        try {
+        	for (String dow: dowList) {
+        		ps = conn.prepareStatement("UPDATE TimeSlots SET closed = 1 WHERE (idCal = ? AND WEEKDAY(date) = ? AND time = ?);");
+                ps.setString(1, idCal);
+                ps.setString(2, dow);
+                ps.setString(3, time);
+                numAffected += ps.executeUpdate();
+                ps.close();
+        	}
+            
+            return (numAffected > 0);
+        } catch (Exception e) {
+            throw new Exception("Failed to close timeslots: " + e.getMessage());
         }
     }
     

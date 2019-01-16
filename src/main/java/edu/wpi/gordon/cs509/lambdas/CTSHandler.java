@@ -61,22 +61,28 @@ public class CTSHandler implements RequestStreamHandler {
 					if ( dowList.size()==0 ) {
 						if ( date.equals("Everyday") ) {
 							if ( time.equals("Whole Day") ) {
+								logger.log("close timeslots on whole day of everyday.");
 								tsClosingResult = closeTimeSlotsInRDS(idCal);
 							} else {
+								logger.log("close timeslots at a time on everyday");
 								tsClosingResult = closeTimeSlotsInRDS(idCal, time);
 							}
 						} else {
 							if ( time.equals("Whole Day") ) {
+								logger.log("close all timeslots on a day.");
 								tsClosingResult = closeAllTimeSlotsOnDateInRDS(idCal, date);
 							} else {
+								logger.log("Close timeslots on given date and time");
 								tsClosingResult = closeTimeSlotsInRDS(idCal, date, time);
 							}
 						}
 					} else {
 						// days of week has been chosen
 						if ( time.equals("Whole Day") ) {
+							logger.log("close timeslots on whole day on given days of week.");
 							tsClosingResult = closeTimeSlotsInRDS(idCal, dowList);
 						} else {
+							logger.log("close timeslots on given time on given days of week.");
 							tsClosingResult = closeTimeSlotsInRDS(idCal, dowList, time);
 						}
 					}
@@ -174,8 +180,6 @@ public class CTSHandler implements RequestStreamHandler {
 			return false;
 		}
 	}
-	
-
 	
 
 }
