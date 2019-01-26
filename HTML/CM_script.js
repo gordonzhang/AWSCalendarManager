@@ -14,11 +14,13 @@ var timeList;
 var minsPerSess;
 
 var activeCal;
+
 function set_activeCal(newCal) {
 	activeCal = newCal;
 	if (activeCal) {
 		$('#btnAddDay').prop("disabled", false);
 		$('#btnCloseTimeSlots').prop("disabled", false);
+		$('#btnNewMeeting').prop("disabled", false);
 	} else {
 		$('#btnAddDay').prop("disabled", true);
 		$('#btnCloseTimeSlots').prop("disabled", true);
@@ -32,32 +34,30 @@ function doOnLoad() {
 	loadCalendarList();
 
 	var daySel = $("#daySel")[0];
-//	Disable load and delete buttons when no calendar is selected.
+	//	Disable load and delete buttons when no calendar is selected.
 	$('#calSel')[0].onchange = function () {
 		var idCalSelected = $('#calSel')[0].value;
 		if (idCalSelected) {
 			$('#btnLPC').prop("disabled", false);
 			$('#btnDPC').prop("disabled", false);
-		}
-		else {
+		} else {
 			$('#btnLPC').prop("disabled", true);
 			$('#btnDPC').prop("disabled", true);
 		}
 	};
 
-// When selection changes in day select
+	// When selection changes in day select
 	$('#daySel')[0].onchange = function () {
 		if ($('#daySel')[0].selectedOptions.length == 1) {
 			$('#btnDeleteDay').prop("disabled", false);
-		}
-		else {
+		} else {
 			$('#btnDeleteDay').prop("disabled", true);
 		}
 		displaySchedule();
 	};
 
-// When day of week checkbox changes, set date to close select disabled or not.
-	$('.dayOfWeekToClose').change(function() {
+	// When day of week checkbox changes, set date to close select disabled or not.
+	$('.dayOfWeekToClose').change(function () {
 		if ($('.dayOfWeekToClose:checked').length > 0) {
 			// any checkbox is checked
 			$('#dateToCloseSel').prop("disabled", true);
@@ -73,12 +73,12 @@ function doOnLoad() {
 		setCloseTimeSlotsSubmitBtn();
 	});
 
-// Close TimeSlots Submit button disabled if any of date/time options is default.
-	$('.closeTSSel').change(function() {
+	// Close TimeSlots Submit button disabled if any of date/time options is default.
+	$('.closeTSSel').change(function () {
 		setCloseTimeSlotsSubmitBtn();
 	});
 
-// Disable all day of week checkboxes if a date option is selected
+	// Disable all day of week checkboxes if a date option is selected
 	$('#dateToCloseSel')[0].onchange = function () {
 		if ($('#dateToCloseSel')[0].value == 'Everyday') {
 			$('.dayOfWeekToClose').prop('disabled', true);
@@ -104,7 +104,7 @@ function loadCalendarList() {
 
 	xhr.onloadend = function () {
 		if (xhr.readyState == XMLHttpRequest.DONE) {
-			console.log("Calendar list received: \n" + JSON.stringify(JSON.parse(xhr.responseText).result,null,2));
+			console.log("Calendar list received: \n" + JSON.stringify(JSON.parse(xhr.responseText).result, null, 2));
 			calList = JSON.parse(xhr.responseText).result;
 			for (var i in calList) {
 				var option = document.createElement("option");
@@ -112,13 +112,12 @@ function loadCalendarList() {
 				option.value = calList[i].idCal;
 				calSel.add(option);
 			}
-			// loadPersonalCalendar("a33071de-b073-413a-b64f-7e3d9ca1d460");
 		} else {
 			console.log("Unable to get calendar list.");
 		}
 	};
 }
-	
+
 function createPersonalCalendar() {
 	data = {};
 	data.calName = $("#calNameNCM")[0].value;
@@ -128,12 +127,12 @@ function createPersonalCalendar() {
 	data.endHour = $("#endHourNCM")[0].value + ":00";
 	data.minsPerSess = $("#minsPerSessNCM")[0].value;
 	var js = JSON.stringify(data);
-	console.log("To create calendar: \n" + JSON.stringify(JSON.parse(js),null,2));
-	
+	console.log("To create calendar: \n" + JSON.stringify(JSON.parse(js), null, 2));
+
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", createPersonalCalendarURL, true);
 	xhr.send(js);
-	xhr.onloadend = function() {
+	xhr.onloadend = function () {
 		if (xhr.readyState == XMLHttpRequest.DONE) {
 			var result = JSON.parse(xhr.responseText).result;
 			if (result == "Success") {
@@ -155,7 +154,6 @@ function loadPersonalCalendar(id) {
 	if (calSel.selectedIndex == -1) {
 		idCal = id;
 	} else {
-		// idCal = calSel.options[calSel.selectedIndex].value;
 		idCal = calSel.value;
 	}
 	console.log("To load calendar with ID: " + idCal);
@@ -164,7 +162,7 @@ function loadPersonalCalendar(id) {
 	$('#labelAvailableDays')[0].innerHTML = 'Available days in ' + activeCal.name + ':';
 	$('#labelAddDay')[0].innerHTML = 'Add Day to ' + activeCal.name;
 	$('#labelCloseTimeSlots')[0].innerHTML = 'Close Sessions in ' + activeCal.name;
-	
+
 	var daySel = $("#daySel")[0];
 	$("#daySel").children().remove();
 
@@ -215,7 +213,7 @@ function loadPersonalCalendar(id) {
 	xhr.send();
 	xhr.onloadend = function () {
 		if (xhr.readyState == XMLHttpRequest.DONE) {
-			console.log("TimeSlots received: \n" + JSON.stringify(JSON.parse(xhr.responseText).result,null,2));
+			console.log("TimeSlots received: \n" + JSON.stringify(JSON.parse(xhr.responseText).result, null, 2));
 			tsList = JSON.parse(xhr.responseText).result;
 			dateList = getSortedDates(tsList);
 			timeList = getTimes(tsList);
@@ -248,7 +246,7 @@ function loadPersonalCalendar(id) {
 	xhrMt.send();
 	xhrMt.onloadend = function () {
 		if (xhrMt.readyState == XMLHttpRequest.DONE) {
-			console.log("Meetings received: \n" + JSON.stringify(JSON.parse(xhrMt.responseText).result,null,2));
+			console.log("Meetings received: \n" + JSON.stringify(JSON.parse(xhrMt.responseText).result, null, 2));
 			mtList = JSON.parse(xhrMt.responseText).result;
 		} else {
 			console.log("Unable to load meetings.");
@@ -262,12 +260,12 @@ function deletePersonalCalendar() {
 	var idCal = calSel.value;
 	data.idCal = idCal;
 	var js = JSON.stringify(data);
-	console.log("To delete calendar: \n" + JSON.stringify(JSON.parse(js),null,2));
-	
+	console.log("To delete calendar: \n" + JSON.stringify(JSON.parse(js), null, 2));
+
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", deletePersonalCalendarURL, true);
 	xhr.send(js);
-	xhr.onloadend = function() {
+	xhr.onloadend = function () {
 		if (xhr.readyState == XMLHttpRequest.DONE) {
 			var result = JSON.parse(xhr.responseText).result;
 			if (result == "Success") {
@@ -287,12 +285,12 @@ function addDayToCalendar() {
 	data.idCal = activeCal.idCal;
 	data.date = $("#inputDateToAdd")[0].value;
 	var js = JSON.stringify(data);
-	console.log("To add date: \n" + JSON.stringify(JSON.parse(js),null,2));
-	
+	console.log("To add date: \n" + JSON.stringify(JSON.parse(js), null, 2));
+
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", addDeleteDayInCalendarURL, true);
 	xhr.send(js);
-	xhr.onloadend = function() {
+	xhr.onloadend = function () {
 		if (xhr.readyState == XMLHttpRequest.DONE) {
 			var result = JSON.parse(xhr.responseText).result;
 			if (result == "Success") {
@@ -314,12 +312,12 @@ function deleteDayFromCalendar() {
 	var daySel = $("#daySel")[0];
 	data.date = daySel.value;
 	var js = JSON.stringify(data);
-	console.log("To delete date: \n" + JSON.stringify(JSON.parse(js),null,2));
-	
+	console.log("To delete date: \n" + JSON.stringify(JSON.parse(js), null, 2));
+
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", addDeleteDayInCalendarURL, true);
 	xhr.send(js);
-	xhr.onloadend = function() {
+	xhr.onloadend = function () {
 		if (xhr.readyState == XMLHttpRequest.DONE) {
 			var result = JSON.parse(xhr.responseText).result;
 			if (result == "Success") {
@@ -339,11 +337,11 @@ function displaySchedule() {
 	var datesSelected = [];
 	var tsSelected = [];
 	var mtSelected = [];
-	for (var i = 0; i < optionsSelected.length; i++){
+	for (var i = 0; i < optionsSelected.length; i++) {
 		var date = optionsSelected[i].value;
 		var timeSlotsOfThisDay = findEntriesInJsonObjByKeyValue(tsList, 'date', date);
 		var meetingsOfThisDay = [];
-		for (var j = 0; j < timeSlotsOfThisDay.length; j++){
+		for (var j = 0; j < timeSlotsOfThisDay.length; j++) {
 			var meetingOfThisTS = findEntriesInJsonObjByKeyValue(mtList, 'idTS', timeSlotsOfThisDay[j].idTS)[0];
 			meetingsOfThisDay.push(meetingOfThisTS);
 		}
@@ -355,8 +353,8 @@ function displaySchedule() {
 	// console.log(tsSelected);
 	// console.log(mtSelected);
 
-	$('#labelScheduleList')[0].innerHTML = minsPerSess+' mins/session';
-	
+	$('#labelScheduleList')[0].innerHTML = minsPerSess + ' mins/session';
+
 	var scheduleSel = $("#scheduleSel")[0];
 	$("#scheduleSel").children().remove();
 	var optgroups = createOptgroupsTimeSlots(datesSelected, tsSelected, mtSelected);
@@ -376,7 +374,7 @@ function closeTimeSlots() {
 	}
 
 	var dowList = [];
-	$('.dayOfWeekToClose').each(function() {
+	$('.dayOfWeekToClose').each(function () {
 		if (this.checked) {
 			dowList.push(this.value);
 		}
@@ -384,12 +382,12 @@ function closeTimeSlots() {
 	data.dowList = dowList;
 	var js = JSON.stringify(data);
 
-	console.log("To close timeSlots: \n" + JSON.stringify(JSON.parse(js),null,2));
+	console.log("To close timeSlots: \n" + JSON.stringify(JSON.parse(js), null, 2));
 
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", closeTimeSlotsURL, true);
 	xhr.send(js);
-	xhr.onloadend = function() {
+	xhr.onloadend = function () {
 		if (xhr.readyState == XMLHttpRequest.DONE) {
 			var result = JSON.parse(xhr.responseText).result;
 			if (result == "Success") {
@@ -405,13 +403,13 @@ function closeTimeSlots() {
 }
 
 
-	
+
 // Helper Function
 //-------------------------------------------------------------------------------------------------
 function findEntriesInJsonObjByKeyValue(objList, keyMatch, valMatch) {
 	var jo = [];
-	for (var i = 0; i < objList.length; i++){
-		if (objList[i][keyMatch] == valMatch){
+	for (var i = 0; i < objList.length; i++) {
+		if (objList[i][keyMatch] == valMatch) {
 			jo.push(objList[i]);
 		}
 	}
@@ -441,18 +439,18 @@ function createOptgroupsDates(dateList) {
 
 	for (var i in dateList) {
 		var date = dateList[i];
-		var currentMonth = date.substring(0,7);
+		var currentMonth = date.substring(0, 7);
 
 		var option = document.createElement("option");
 		option.text = date;
 		option.value = date;
 
-		if ( i == 0 ) {
+		if (i == 0) {
 			optgroup = document.createElement("optgroup");
 			optgroup.setAttribute("label", currentMonth);
 		}
 
-		if (currentMonth != previousMonth && i!=0) {
+		if (currentMonth != previousMonth && i != 0) {
 			optgroups.push(optgroup);
 			optgroup = document.createElement("optgroup");
 			optgroup.setAttribute("label", currentMonth);
@@ -460,7 +458,7 @@ function createOptgroupsDates(dateList) {
 
 		optgroup.appendChild(option);
 
-		if ( i == (dateList.length-1) ) {
+		if (i == (dateList.length - 1)) {
 			optgroups.push(optgroup);
 		}
 		previousMonth = currentMonth;
@@ -486,9 +484,9 @@ function createOptgroupsTimeSlots(dateList, tsList, mtList) {
 			var text = '';
 			var timeSlot = timeSlots[j];
 			var meeting = meetings[j];
-			text += timeSlot.time.substring(0,5);
+			text += timeSlot.time.substring(0, 5);
 			text += ' ';
-			text += timeSlot.time.substring(timeSlot.time.length-2);
+			text += timeSlot.time.substring(timeSlot.time.length - 2);
 			if (timeSlot.closed == 0) {
 				text += ' O ';
 			} else {
@@ -512,8 +510,8 @@ function createOptgroupsTimeSlots(dateList, tsList, mtList) {
 
 function setCloseTimeSlotsSubmitBtn() {
 	var numDefaults = 0;
-	$('.closeTSSel').each(function() {
-		if (this.value!='placeholder') {
+	$('.closeTSSel').each(function () {
+		if (this.value != 'placeholder') {
 			numDefaults += 1;
 		}
 	});
@@ -525,11 +523,11 @@ function setCloseTimeSlotsSubmitBtn() {
 }
 
 function TransTo24HourBase(timeString) {
-	if (timeString.substring(timeString.length-2) == 'AM') {
-		return timeString.substring(0,8);
+	if (timeString.substring(timeString.length - 2) == 'AM') {
+		return timeString.substring(0, 8);
 	} else {
-		var hr = parseInt(timeString.substring(0,2)) + 12;
-		var time = hr.toString() + timeString.substring(2,8);
+		var hr = parseInt(timeString.substring(0, 2)) + 12;
+		var time = hr.toString() + timeString.substring(2, 8);
 		return time;
 	}
 }
