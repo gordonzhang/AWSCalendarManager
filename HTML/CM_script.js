@@ -5,6 +5,7 @@ var loadTimeSlotsURL = "https://suthx1jfw5.execute-api.us-east-2.amazonaws.com/a
 var addDeleteDayInCalendarURL = "https://suthx1jfw5.execute-api.us-east-2.amazonaws.com/alpha/adddaytocalendar";
 var loadMeetingsURL = "https://suthx1jfw5.execute-api.us-east-2.amazonaws.com/alpha/loadmeetings";
 var closeTimeSlotsURL = "https://suthx1jfw5.execute-api.us-east-2.amazonaws.com/alpha/closetimeslots";
+var addCancelMeetingURL = "https://suthx1jfw5.execute-api.us-east-2.amazonaws.com/alpha/addcancelmeeting";
 
 var calList;
 var tsList;
@@ -13,20 +14,21 @@ var dateList;
 var timeList;
 var minsPerSess;
 
-var activeCal;
+var activeCal = null;
 
 function set_activeCal(newCal) {
 	activeCal = newCal;
 	if (activeCal) {
+		$('#btnLPC').prop("disabled", false);
+		$('#btnDPC').prop("disabled", false);
 		$('#btnAddDay').prop("disabled", false);
 		$('#btnCloseTimeSlots').prop("disabled", false);
-		$('#btnNewMeeting').prop("disabled", false);
 	} else {
+		$('#btnLPC').prop("disabled", true);
+		$('#btnDPC').prop("disabled", true);
 		$('#btnAddDay').prop("disabled", true);
 		$('#btnCloseTimeSlots').prop("disabled", true);
 		$('#btnDeleteDay').prop("disabled", true);
-		$('#btnLPC').prop("disabled", true);
-		$('#btnDPC').prop("disabled", true);
 	}
 }
 
@@ -43,6 +45,18 @@ function doOnLoad() {
 		} else {
 			$('#btnLPC').prop("disabled", true);
 			$('#btnDPC').prop("disabled", true);
+		}
+	};
+
+	//	Disable new and cancel meeting buttons when no timeslot is selected.
+	$('#tsSel')[0].onchange = function () {
+		var idTsSelected = $('#tsSel')[0].value;
+		if (idTsSelected) {
+			$('#btnNewMeeting').prop("disabled", false);
+			$('#btnCancelMeeting').prop("disabled", false);
+		} else {
+			$('#btnNewMeeting').prop("disabled", true);
+			$('#btnCancelMeeting').prop("disabled", true);
 		}
 	};
 
@@ -92,11 +106,11 @@ function doOnLoad() {
 function loadCalendarList() {
 	var calSel = $('#calSel')[0];
 	var daySel = $('#daySel')[0];
-	var scheduleSel = $('#scheduleSel')[0];
+	var tsSel = $('#tsSel')[0];
 
 	$('#calSel').children().remove();
 	$('#daySel').children().remove();
-	$('#scheduleSel').children().remove();
+	$('#tsSel').children().remove();
 
 	var xhr = new XMLHttpRequest();
 	xhr.open("GET", loadCalendarListURL, true);
@@ -111,6 +125,9 @@ function loadCalendarList() {
 				option.text = calList[i].name;
 				option.value = calList[i].idCal;
 				calSel.add(option);
+			}
+			if (activeCal) {
+				calSel.value = activeCal.idCal;
 			}
 		} else {
 			console.log("Unable to get calendar list.");
@@ -142,6 +159,7 @@ function createPersonalCalendar() {
 				$('#calCreatingFailureModal').modal('show');
 			}
 			loadCalendarList();
+			set_activeCal(null);
 		} else {
 			console.log("Unable to create calendar.");
 		}
@@ -151,7 +169,8 @@ function createPersonalCalendar() {
 function loadPersonalCalendar(id) {
 	var calSel = $("#calSel")[0];
 	var idCal;
-	if (calSel.selectedIndex == -1) {
+
+	if (id) {
 		idCal = id;
 	} else {
 		idCal = calSel.value;
@@ -159,8 +178,9 @@ function loadPersonalCalendar(id) {
 	console.log("To load calendar with ID: " + idCal);
 	set_activeCal(findEntriesInJsonObjByKeyValue(calList, "idCal", idCal)[0]);
 	minsPerSess = activeCal.minsPerSess;
-	$('#labelAvailableDays')[0].innerHTML = 'Available days in ' + activeCal.name + ':';
+	$('#labelAvailableDays')[0].innerHTML = 'Days in ' + activeCal.name + ':';
 	$('#labelAddDay')[0].innerHTML = 'Add Day to ' + activeCal.name;
+	$('#labelNewMeeting')[0].innerHTML = 'New Meeting for ' + activeCal.name;
 	$('#labelCloseTimeSlots')[0].innerHTML = 'Close Sessions in ' + activeCal.name;
 
 	var daySel = $("#daySel")[0];
@@ -238,8 +258,8 @@ function loadPersonalCalendar(id) {
 		}
 	};
 
-	var scheduleSel = $("#scheduleSel")[0];
-	$("#scheduleSel").children().remove();
+	var tsSel = $("#tsSel")[0];
+	$("#tsSel").children().remove();
 
 	var xhrMt = new XMLHttpRequest();
 	xhrMt.open("GET", loadMeetingsURL + "?idCal=" + idCal, true);
@@ -299,6 +319,7 @@ function addDayToCalendar() {
 			} else {
 				$('#dayAddingFailureModal').modal('show');
 			}
+			resetBtnStatus();
 			loadCalendarList();
 			loadPersonalCalendar(activeCal.idCal);
 		}
@@ -326,6 +347,7 @@ function deleteDayFromCalendar() {
 			} else {
 				$('#dayAddingFailureModal').modal('show');
 			}
+			resetBtnStatus();
 			loadCalendarList();
 			loadPersonalCalendar(activeCal.idCal);
 		}
@@ -355,11 +377,11 @@ function displaySchedule() {
 
 	$('#labelScheduleList')[0].innerHTML = minsPerSess + ' mins/session';
 
-	var scheduleSel = $("#scheduleSel")[0];
-	$("#scheduleSel").children().remove();
+	var tsSel = $("#tsSel")[0];
+	$("#tsSel").children().remove();
 	var optgroups = createOptgroupsTimeSlots(datesSelected, tsSelected, mtSelected);
 	for (var k in optgroups) {
-		scheduleSel.appendChild(optgroups[k]);
+		tsSel.appendChild(optgroups[k]);
 	}
 }
 
@@ -396,6 +418,67 @@ function closeTimeSlots() {
 			} else {
 				$('#dayAddingFailureModal').modal('show');
 			}
+			resetBtnStatus();
+			loadCalendarList();
+			loadPersonalCalendar(activeCal.idCal);
+		}
+	};
+}
+
+function createMeeting() {
+	data = {};
+	data.operation = "add";
+	data.idCal = activeCal.idCal;
+	data.idTS = $('#tsSel')[0].value;
+	data.title = $("#inputTitle")[0].value;
+	data.location = $("#inputLocation")[0].value;
+	data.participant = $("#inputParticipant")[0].value;
+	var js = JSON.stringify(data);
+	console.log("To create meeting: \n" + JSON.stringify(JSON.parse(js), null, 2));
+
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", addCancelMeetingURL, true);
+	xhr.send(js);
+	xhr.onloadend = function () {
+		if (xhr.readyState == XMLHttpRequest.DONE) {
+			var result = JSON.parse(xhr.responseText).result;
+			if (result == "Success") {
+				$('#newMeetingModal').modal('hide');
+				$('#dayAddingSuccessModal').modal('show');
+			} else {
+				$('#dayAddingFailureModal').modal('show');
+			}
+			resetBtnStatus();
+			loadCalendarList();
+			loadPersonalCalendar(activeCal.idCal);
+		}
+	};
+}
+
+function cancelMeeting() {
+	data = {};
+	data.operation = "delete";
+	data.idCal = activeCal.idCal;
+	data.idTS = $('#tsSel')[0].value;
+	data.title = $("#inputTitle")[0].value;
+	data.location = $("#inputLocation")[0].value;
+	data.participant = $("#inputParticipant")[0].value;
+	var js = JSON.stringify(data);
+	console.log("To create meeting: \n" + JSON.stringify(JSON.parse(js), null, 2));
+
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", addCancelMeetingURL, true);
+	xhr.send(js);
+	xhr.onloadend = function () {
+		if (xhr.readyState == XMLHttpRequest.DONE) {
+			var result = JSON.parse(xhr.responseText).result;
+			if (result == "Success") {
+				$('#addDayModal').modal('hide');
+				$('#dayAddingSuccessModal').modal('show');
+			} else {
+				$('#dayAddingFailureModal').modal('show');
+			}
+			resetBtnStatus();
 			loadCalendarList();
 			loadPersonalCalendar(activeCal.idCal);
 		}
@@ -495,7 +578,6 @@ function createOptgroupsTimeSlots(dateList, tsList, mtList) {
 			if (meetings[j]) {
 				meeting = meetings[j];
 				text += meeting.title;
-				text += meeting.title;
 			}
 
 			var option = document.createElement("option");
@@ -530,4 +612,20 @@ function TransTo24HourBase(timeString) {
 		var time = hr.toString() + timeString.substring(2, 8);
 		return time;
 	}
+}
+
+function resetBtnStatus () {
+	$('#btnLPC').prop('disabled', true);
+	$('#btnDPC').prop('disabled', true);
+
+	$('#btnAddDay').prop('disabled', true);
+	$('#btnDeleteDay').prop('disabled', true);
+	$('#btnCloseTimeSlots').prop('disabled', true);
+
+	$('#btnNewMeeting').prop('disabled', true);
+	$('#btnViewMeeting').prop('disabled', true);
+	$('#btnCancelMeeting').prop('disabled', true);
+	
+	$('#btnSubmitCloseTimeSlots').prop('disabled', true);
+	$('#btnSubmitNewMeeting').prop('disabled', true);
 }

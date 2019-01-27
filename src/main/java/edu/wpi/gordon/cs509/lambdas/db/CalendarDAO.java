@@ -147,6 +147,7 @@ public class CalendarDAO {
                 psMt.close();
         	}
             
+        	// Delete corresponding time slots
             PreparedStatement ps = conn.prepareStatement("DELETE FROM TimeSlots WHERE (idCal = ? AND date = ?);");
             ps.setString(1, idCal);
             ps.setString(2, dateToDelete);
@@ -349,6 +350,91 @@ public class CalendarDAO {
         }
     }
     
+	public boolean createMeeting(String idTS, String idCal, String title, String location, String participant) throws Exception {
+        try {
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM TimeSlots WHERE idTS = ? ;");
+            ps.setString(1, idTS);
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+            	TimeSlot ts = generateTimeSlot(resultSet);
+            	if (ts.closed == 0) {
+            		if (ts.hasMeeting == 0) {
+//                        PreparedStatement psUpdate = conn.prepareStatement(
+//							"BEGIN TRANSACTION;\n" + 
+//							"UPDATE TimeSlots SET hasMeeting = 1 WHERE idTS = ? ;\n" +
+//							"INSERT INTO Meetings (idMT, idTS, idCal, title, location, participant) VALUES (?,?,?,?,?,?);\n" + 
+//							"COMMIT;");
+//                        psUpdate.setString(1, idTS);
+//                        psUpdate.setString(2, UUID.randomUUID().toString());
+//                        psUpdate.setString(3, idTS);
+//                        psUpdate.setString(4, idCal);
+//                        psUpdate.setString(5, title);
+//                        psUpdate.setString(6, location);
+//                        psUpdate.setString(7, participant);
+//                        int numAffected = psUpdate.executeUpdate();
+//                        psUpdate.close();
+//                        ps.close();
+            			
+                        PreparedStatement psUpdate = conn.prepareStatement("UPDATE TimeSlots SET hasMeeting = 1 WHERE idTS = ? ;");
+                        psUpdate.setString(1, idTS);
+                        int numAffected = psUpdate.executeUpdate();
+                        
+                        psUpdate = conn.prepareStatement("INSERT INTO Meetings (idMT, idTS, idCal, title, location, participant) VALUES (?,?,?,?,?,?);");
+                        psUpdate.setString(1, UUID.randomUUID().toString());
+                        psUpdate.setString(2, idTS);
+                        psUpdate.setString(3, idCal);
+                        psUpdate.setString(4, title);
+                        psUpdate.setString(5, location);
+                        psUpdate.setString(6, participant);
+                        numAffected += psUpdate.executeUpdate();
+                        psUpdate.close();
+
+                        return (numAffected > 1);
+            		} else {
+            			throw new Exception("This time slot has existing meeting.");
+            		}
+            	} else {
+            		throw new Exception("This time slot is closed");
+            	}
+            }
+            return false;
+        } catch (Exception e) {
+            throw new Exception("Failed to create meeting: " + e.getMessage());
+        }
+	}
+	
+	public boolean deleteMeetingFromCalendar(String idTS) throws Exception {
+        try {
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM TimeSlots WHERE idTS = ? ;");
+            ps.setString(1, idTS);
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+            	TimeSlot ts = generateTimeSlot(resultSet);
+            	if (ts.closed == 0) {
+            		if (ts.hasMeeting == 1) {
+                        PreparedStatement psUpdate = conn.prepareStatement("UPDATE TimeSlots SET hasMeeting = 0 WHERE idTS = ? ;");
+                        psUpdate.setString(1, idTS);
+                        int numAffected = psUpdate.executeUpdate();
+                        
+                        psUpdate = conn.prepareStatement("DELETE FROM Meetings WHERE idTS = ? ;");
+                        psUpdate.setString(1, idTS);
+                        numAffected += psUpdate.executeUpdate();
+                        psUpdate.close();
+
+                        return (numAffected > 1);
+            		} else {
+            			throw new Exception("This time slot has no meeting.");
+            		}
+            	} else {
+            		throw new Exception("This time slot is closed");
+            	}
+            }
+            return false;
+        } catch (Exception e) {
+            throw new Exception("Failed to create meeting: " + e.getMessage());
+        }
+	}
+    
     
 //    Helper Functions
 //==============================================================================================================
@@ -427,5 +513,6 @@ public class CalendarDAO {
         java.sql.Time nextHour = java.sql.Time.valueOf(localT);
         return nextHour;
 	}
+
 
 }

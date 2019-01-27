@@ -17,7 +17,7 @@
 	
 <div class="row m-2">
 	<!-- Calendar List -->
-	<div class="col-md-4 mt-1">
+	<div class="col-md-3 mt-1">
 		<label for="calSel">Calendar List:</label>
 		<select id="calSel" size="12" class="form-control" >
 		</select>
@@ -28,7 +28,7 @@
 	</div>
 	
 	<!-- Days List -->
-	<div class="col-md-4 mt-1">
+	<div class="col-md-3 mt-1">
 		<label id="labelAvailableDays" for="daySel">Available days</label>
 		<select id="daySel" multiple size="12" class="form-control" >
 		</select>
@@ -44,13 +44,13 @@
 	</div>
 	
 	<!-- Schedule List -->
-	<div class="col-md-4 mt-1">
-		<label id="labelScheduleList" for="scheduleSel">Schedule:</label>
-		<select id="scheduleSel" size="12" class="form-control" >
+	<div class="col-md-5 mt-1">
+		<label id="labelScheduleList" for="tsSel">Schedule:</label>
+		<select id="tsSel" size="12" class="form-control" >
 		</select>
 		
 		<div class="row">
-			<button id="btnNewMeeting" disabled type="button" class="btn btn-primary mt-2 ml-1 " data-toggle="modal" data-target="#addDayModal">New Meeting</button>
+			<button id="btnNewMeeting" disabled type="button" class="btn btn-primary mt-2 ml-1 " data-toggle="modal" data-target="#newMeetingModal">New Meeting</button>
 			<button id="btnCancelMeeting" disabled type="button" class="btn btn-danger mt-2 ml-1 " onClick="JavaScript:cancelMeeting()">Cancel Meeting</button>
 		</div>
 
@@ -163,13 +163,21 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 			
-			<!-- <form id="formAddDay"> -->
+			<!-- <form id="formNewMeeting"> -->
 			<!-- Modal body -->
 			<div class="modal-body">
 				<form>
-					<label for="inputDateToAdd">Title:</label>
+					<label for="inputTitle">Title:</label>
 					<div class="input-group mb-3">
 						<input type="text" class="form-control" id="inputTitle" >
+					</div>
+					<label for="inputLocation">Location:</label>
+					<div class="input-group mb-3">
+						<input type="text" class="form-control" id="inputLocation" >
+					</div>
+					<label for="inputParticipant">Participant:</label>
+					<div class="input-group mb-3">
+						<input type="text" class="form-control" id="inputParticipant" >
 					</div>
 				</form>
 			</div>
@@ -177,7 +185,7 @@
 			<!-- Modal footer -->
 			<div class="modal-footer">
 				<button type="button" class="btn btn" data-dismiss="modal">Cancel</button>
-				<button id="btnSubmitAddDay" type="button" class="btn btn-primary ml-2" onClick="JavaScript:addDayToCalendar()">Submit</button>
+				<button id="btnSubmitNewMeeting" type="button" class="btn btn-primary ml-2" onClick="JavaScript:createMeeting()">Submit</button>
 			</div>
 			<!-- </form> -->
 		</div>
@@ -194,7 +202,7 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 			
-			<!-- <form id="formAddDay"> -->
+			<!-- <form id="formNewMeeting"> -->
 			<!-- Modal body -->
 			<div class="modal-body">
 				<form>

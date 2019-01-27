@@ -19,7 +19,7 @@ import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 
 //Delete and Add days in Calendar
-public class DACHandler implements RequestStreamHandler {
+public class ACMHandler implements RequestStreamHandler {
 	JsonParser parser = new JsonParser();
 
 	@Override
@@ -45,28 +45,31 @@ public class DACHandler implements RequestStreamHandler {
 				String bodyString = event.get("body").getAsString();
 				if(bodyString != null) {
 					JsonObject body = parser.parse(bodyString).getAsJsonObject();
+					String idTS = body.get("idTS").getAsString();
 					String idCal = body.get("idCal").getAsString();
-					String date = body.get("date").getAsString();
+					String title = body.get("title").getAsString();
+					String location = body.get("location").getAsString();
+					String participant = body.get("participant").getAsString();
 					String operation = body.get("operation").getAsString();
-					logger.log(operation);
+					logger.log("Operation: " + operation);
 					if (operation.equals("add")) {
-						boolean dayAddingResult = addDayToRDS(idCal, date);
-						if (dayAddingResult==true) {
+						boolean MeetingCreatingResult = createMeetingInRDS(idTS, idCal, title, location, participant);
+						if (MeetingCreatingResult==true) {
 							responseBody.addProperty("result", "Success");
 						} else {
 							responseBody.addProperty("result", "Failure");
 						}
-						logger.log("Day to add: \n" + date + "\n");
-						logger.log("Day adding result:" + dayAddingResult + "\n");
+						logger.log("Meeting to create: " + title + location + participant +"\n");
+						logger.log("Meeting creating result: " + MeetingCreatingResult + "\n");
 					} else if (operation.equals("delete")) {
-						boolean deleteAddingResult = deleteDayFromRDS(idCal, date);
-						if (deleteAddingResult==true) {
+						boolean MeetingDeletingResult = deleteMeetingFromRDS(idTS);
+						if (MeetingDeletingResult==true) {
 							responseBody.addProperty("result", "Success");
 						} else {
 							responseBody.addProperty("result", "Failure");
 						}
-						logger.log("Day to delete: \n" + date + "\n");
-						logger.log("Day deleting result:" + deleteAddingResult + "\n");
+						logger.log("Meeting to delete: " + title + location + participant +"\n" + idTS + "\n");
+						logger.log("Meeting deleting result: " + MeetingDeletingResult + "\n");
 					}
 				}
 			}
@@ -83,10 +86,10 @@ public class DACHandler implements RequestStreamHandler {
         writer.close();
 	}
 	
-	private boolean addDayToRDS(String idCal, String dateToAdd) {
+	private boolean createMeetingInRDS(String idTS, String idCal, String title, String location, String participant) {
 		CalendarDAO dao = new CalendarDAO();
 		try {
-			dao.addDayToCalendar(idCal, dateToAdd);
+			dao.createMeeting(idTS, idCal, title, location, participant);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -94,10 +97,10 @@ public class DACHandler implements RequestStreamHandler {
 		}
 	}
 	
-	private boolean deleteDayFromRDS(String idCal, String dateToDelete) {
+	private boolean deleteMeetingFromRDS(String idTS) {
 		CalendarDAO dao = new CalendarDAO();
 		try {
-			dao.deleteDayFromCalendar(idCal, dateToDelete);
+			dao.deleteMeetingFromCalendar(idTS);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
