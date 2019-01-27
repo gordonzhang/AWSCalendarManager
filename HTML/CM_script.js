@@ -53,6 +53,7 @@ function doOnLoad() {
 		var idTsSelected = $('#tsSel')[0].value;
 		if (idTsSelected) {
 			$('#labelNewMeetingTime')[0].innerHTML = $("#daySel option:selected").text() + ", " + $("#tsSel option:selected").text().substring(0, 8);
+			var timeSlot = findEntriesInJsonObjByKeyValue(tsList, 'idTS', idTsSelected)[0];
 			var meeting = findEntriesInJsonObjByKeyValue(mtList, 'idTS', idTsSelected)[0];
 			if (meeting) {
 				$('#btnNewMeeting').prop("disabled", true);
@@ -62,10 +63,22 @@ function doOnLoad() {
 				$('#inputTitleToEdit').val(meeting.title);
 				$('#inputLocationToEdit').val(meeting.location);
 				$('#inputParticipantToEdit').val(meeting.participant);
+				$('#btnEditMeeting')[0].innerHTML = "View/Edit Meeting";
+				$('.editMeetingFields').prop("readonly", false);
+				if (timeSlot.closed == 1) {
+					$('#btnCancelMeeting').prop("disabled", true);
+					$('#btnEditMeeting')[0].innerHTML = "View Meeting";
+					$('.editMeetingFields').prop("readonly", true);
+				}
 			} else {
 				$('#btnNewMeeting').prop("disabled", false);
 				$('#btnEditMeeting').prop("disabled", true);
 				$('#btnCancelMeeting').prop("disabled", true);
+				$('#btnEditMeeting')[0].innerHTML = "View/Edit Meeting";
+				$('.editMeetingFields').prop("readonly", false);
+				if (timeSlot.closed == 1) {
+					$('#btnNewMeeting').prop("disabled", true);
+				}
 			}
 		} else {
 			$('#btnNewMeeting').prop("disabled", true);
@@ -390,7 +403,7 @@ function displaySchedule() {
 	// console.log(tsSelected);
 	// console.log(mtSelected);
 
-	$('#labelScheduleList')[0].innerHTML = minsPerSess + ' mins/session';
+	$('#labelScheduleList')[0].innerHTML = 'Schedule: (' + minsPerSess + ' mins/session)';
 
 	var tsSel = $("#tsSel")[0];
 	$("#tsSel").children().remove();

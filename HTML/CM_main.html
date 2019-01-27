@@ -8,9 +8,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 
-<script type="text/javascript" src="CM_script.js">
+<script type="text/javascript" src="CM_script.js"></script>
 
-</script>
 </head>
 
 <body onload="doOnLoad();">
@@ -18,7 +17,7 @@
 <div class="row m-2">
 	<!-- Calendar List -->
 	<div class="col-md-3 mt-1">
-		<label for="calSel">Calendar List:</label>
+		<label for="calSel">Calendars:</label>
 		<select id="calSel" size="12" class="form-control" >
 		</select>
 		
@@ -211,15 +210,15 @@
 						<h5 id="labelMeetingTime"></h5>
 						<label for="inputTitleToEdit">Title:</label>
 						<div class="input-group mb-3">
-							<input type="text" class="form-control" id="inputTitleToEdit" >
+							<input type="text" class="editMeetingFields form-control" id="inputTitleToEdit" >
 						</div>
 						<label for="inputLocationToEdit">Location:</label>
 						<div class="input-group mb-3">
-							<input type="text" class="form-control" id="inputLocationToEdit" >
+							<input type="text" class="editMeetingFields form-control" id="inputLocationToEdit" >
 						</div>
 						<label for="inputParticipantToEdit">Participant:</label>
 						<div class="input-group mb-3">
-							<input type="text" class="form-control" id="inputParticipantToEdit" >
+							<input type="text" class="editMeetingFields form-control" id="inputParticipantToEdit" >
 						</div>
 					</form>
 				</div>
