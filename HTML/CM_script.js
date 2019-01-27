@@ -52,10 +52,24 @@ function doOnLoad() {
 	$('#tsSel')[0].onchange = function () {
 		var idTsSelected = $('#tsSel')[0].value;
 		if (idTsSelected) {
-			$('#btnNewMeeting').prop("disabled", false);
-			$('#btnCancelMeeting').prop("disabled", false);
+			$('#labelNewMeetingTime')[0].innerHTML = $("#daySel option:selected").text() + ", " + $("#tsSel option:selected").text().substring(0, 8);
+			var meeting = findEntriesInJsonObjByKeyValue(mtList, 'idTS', idTsSelected)[0];
+			if (meeting) {
+				$('#btnNewMeeting').prop("disabled", true);
+				$('#btnEditMeeting').prop("disabled", false);
+				$('#btnCancelMeeting').prop("disabled", false);
+
+				$('#inputTitleToEdit').val(meeting.title);
+				$('#inputLocationToEdit').val(meeting.location);
+				$('#inputParticipantToEdit').val(meeting.participant);
+			} else {
+				$('#btnNewMeeting').prop("disabled", false);
+				$('#btnEditMeeting').prop("disabled", true);
+				$('#btnCancelMeeting').prop("disabled", true);
+			}
 		} else {
 			$('#btnNewMeeting').prop("disabled", true);
+			$('#btnEditMeeting').prop("disabled", true);
 			$('#btnCancelMeeting').prop("disabled", true);
 		}
 	};
@@ -181,6 +195,7 @@ function loadPersonalCalendar(id) {
 	$('#labelAvailableDays')[0].innerHTML = 'Days in ' + activeCal.name + ':';
 	$('#labelAddDay')[0].innerHTML = 'Add Day to ' + activeCal.name;
 	$('#labelNewMeeting')[0].innerHTML = 'New Meeting for ' + activeCal.name;
+	$('#labelEditMeeting')[0].innerHTML = 'View/Edit Meeting for ' + activeCal.name;
 	$('#labelCloseTimeSlots')[0].innerHTML = 'Close Sessions in ' + activeCal.name;
 
 	var daySel = $("#daySel")[0];
@@ -359,12 +374,12 @@ function displaySchedule() {
 	var datesSelected = [];
 	var tsSelected = [];
 	var mtSelected = [];
-	for (var i = 0; i < optionsSelected.length; i++) {
-		var date = optionsSelected[i].value;
+	for (var iOpt = 0; iOpt < optionsSelected.length; iOpt++) {
+		var date = optionsSelected[iOpt].value;
 		var timeSlotsOfThisDay = findEntriesInJsonObjByKeyValue(tsList, 'date', date);
 		var meetingsOfThisDay = [];
-		for (var j = 0; j < timeSlotsOfThisDay.length; j++) {
-			var meetingOfThisTS = findEntriesInJsonObjByKeyValue(mtList, 'idTS', timeSlotsOfThisDay[j].idTS)[0];
+		for (var iTS = 0; iTS < timeSlotsOfThisDay.length; iTS++) {
+			var meetingOfThisTS = findEntriesInJsonObjByKeyValue(mtList, 'idTS', timeSlotsOfThisDay[iTS].idTS)[0];
 			meetingsOfThisDay.push(meetingOfThisTS);
 		}
 		datesSelected.push(date);
@@ -380,8 +395,8 @@ function displaySchedule() {
 	var tsSel = $("#tsSel")[0];
 	$("#tsSel").children().remove();
 	var optgroups = createOptgroupsTimeSlots(datesSelected, tsSelected, mtSelected);
-	for (var k in optgroups) {
-		tsSel.appendChild(optgroups[k]);
+	for (var iOG in optgroups) {
+		tsSel.appendChild(optgroups[iOG]);
 	}
 }
 
@@ -554,19 +569,19 @@ function createOptgroupsTimeSlots(dateList, tsList, mtList) {
 	var optgroup;
 	var previousMonth;
 
-	for (var i in dateList) {
-		var date = dateList[i];
-		var timeSlots = tsList[i];
-		var meetings = mtList[i];
+	for (var iDate in dateList) {
+		var date = dateList[iDate];
+		var timeSlots = tsList[iDate];
+		var meetings = mtList[iDate];
 
 		optgroup = document.createElement("optgroup");
 		optgroup.setAttribute("label", date);
 		optgroup.setAttribute("label", date);
 
-		for (var j in timeSlots) {
+		for (var iTS in timeSlots) {
 			var text = '';
-			var timeSlot = timeSlots[j];
-			var meeting = meetings[j];
+			var timeSlot = timeSlots[iTS];
+			var meeting = meetings[iTS];
 			text += timeSlot.time.substring(0, 5);
 			text += ' ';
 			text += timeSlot.time.substring(timeSlot.time.length - 2);
@@ -575,8 +590,8 @@ function createOptgroupsTimeSlots(dateList, tsList, mtList) {
 			} else {
 				text += ' C ';
 			}
-			if (meetings[j]) {
-				meeting = meetings[j];
+			if (meetings[iTS]) {
+				meeting = meetings[iTS];
 				text += meeting.title;
 			}
 
@@ -623,7 +638,7 @@ function resetBtnStatus () {
 	$('#btnCloseTimeSlots').prop('disabled', true);
 
 	$('#btnNewMeeting').prop('disabled', true);
-	$('#btnViewMeeting').prop('disabled', true);
+	$('#btnEditMeeting').prop('disabled', true);
 	$('#btnCancelMeeting').prop('disabled', true);
 	
 	$('#btnSubmitCloseTimeSlots').prop('disabled', true);
